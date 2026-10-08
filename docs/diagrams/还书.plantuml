@@ -1,0 +1,76 @@
+@startuml
+
+actor User
+participant Client
+participant Controller
+participant Service
+participant Mapper
+database Database
+
+User -> Client: 请求归还图书
+activate Client
+Client -> Controller: 发送归还请求
+activate Controller
+Controller -> Service: 调用归还处理方法
+activate Service
+Service -> Service: 修改借书状态为已归还
+Service -> Mapper: 更新借书状态
+activate Mapper
+Mapper -> Database: 执行更新操作
+Database --> Mapper: 返回更新结果
+deactivate Database
+Mapper --> Service: 返回更新结果
+deactivate Mapper
+Service -> Service: 记录实际归还时间
+Service -> Mapper: 保存归还记录
+activate Mapper
+Mapper -> Database: 执行插入操作
+Database --> Mapper: 返回插入结果
+deactivate Database
+Mapper --> Service: 返回插入结果
+deactivate Mapper
+Service -> Mapper: 查询图书信息
+activate Mapper
+Mapper -> Database: 执行查询操作
+Database --> Mapper: 返回图书信息
+deactivate Database
+Mapper --> Service: 返回图书信息
+deactivate Mapper
+alt 图书信息存在
+    Service -> Service: 更新图书数量
+    Service -> Mapper: 更新图书数量
+    activate Mapper
+    Mapper -> Database: 执行更新操作
+    Database --> Mapper: 返回更新结果
+    deactivate Database
+    Mapper --> Service: 返回更新结果
+    deactivate Mapper
+    Service -> Mapper: 查询用户信息
+    activate Mapper
+    Mapper -> Database: 执行查询操作
+    Database --> Mapper: 返回用户信息
+    deactivate Database
+    Mapper --> Service: 返回用户信息
+    deactivate Mapper
+    alt 用户信息存在
+        Service -> Service: 计算积分变化
+        Service -> Service: 更新用户积分和状态
+        Service -> Mapper: 更新用户积分和状态
+        activate Mapper
+        Mapper -> Database: 执行更新操作
+        Database --> Mapper: 返回更新结果
+        deactivate Database
+        Mapper --> Service: 返回更新结果
+        deactivate Mapper
+    else 用户信息不存在
+        Service --> Service: 抛出异常（用户不存在）
+    end
+else 图书信息不存在
+    Service --> Service: 抛出异常（图书不存在）
+end
+Service --> Controller: 返回归还结果
+deactivate Service
+Controller --> Client: 返回归还结果
+deactivate Controller
+
+@enduml

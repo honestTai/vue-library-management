@@ -1,0 +1,30 @@
+@startuml
+
+actor User
+participant Client
+participant Controller
+participant Service
+participant Mapper
+database Database
+
+User -> Client: 提交保存图书类别信息请求
+activate Client
+Client -> Controller: 发送保存图书类别信息请求
+activate Controller
+Controller -> Service: 调用保存图书类别信息方法
+activate Service
+Service -> Mapper: 保存图书类别信息
+activate Mapper
+Mapper -> Database: 插入图书类别信息
+activate Database
+Database --> Mapper: 返回插入结果
+deactivate Database
+Mapper --> Service: 返回插入结果
+deactivate Mapper
+Service --> Controller: 返回插入结果
+deactivate Service
+Controller --> Client: 返回插入结果
+deactivate Controller
+deactivate Client
+
+@enduml

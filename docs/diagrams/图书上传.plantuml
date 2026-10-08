@@ -1,0 +1,53 @@
+@startuml
+
+participant User
+participant Client
+participant Controller
+participant Service
+participant Mapper
+database Database
+participant Filesystem
+
+User -> Client: 发送上传文件请求
+Client -> Controller: 上传文件请求
+activate Controller
+Controller -> Service: 调用上传文件方法
+activate Service
+Service -> Filesystem: 保存文件至文件系统
+activate Filesystem
+Filesystem --> Service: 返回文件保存路径和下载token
+Service --> Controller: 返回文件保存路径和下载token
+deactivate Filesystem
+Controller --> Client: 返回文件保存路径和下载token
+deactivate Service
+deactivate Controller
+User <- Client: 收到文件保存路径和下载token
+
+User -> Client: 输入图书基本信息
+Client -> Controller: 发送保存图书请求
+activate Controller
+Controller -> Service: 调用保存图书方法
+activate Service
+Service -> Mapper: 获取图书分类信息
+activate Mapper
+Mapper -> Database: 查询图书分类信息
+activate Database
+Database --> Mapper: 返回图书分类信息
+deactivate Database
+Mapper --> Service: 返回图书分类信息
+deactivate Mapper
+Service -> Service: 处理图书分类信息
+Service -> Mapper: 保存图书信息
+activate Mapper
+Mapper -> Database: 插入图书信息
+activate Database
+Database --> Mapper: 返回插入结果
+deactivate Database
+Mapper --> Service: 返回插入结果
+deactivate Mapper
+Service --> Controller: 返回插入结果
+deactivate Service
+deactivate Controller
+Controller --> Client: 返回插入结果
+
+@enduml

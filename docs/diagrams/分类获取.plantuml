@@ -1,0 +1,27 @@
+@startuml
+
+actor User
+participant Client
+participant Controller
+participant Service
+participant CategoryService
+database Database
+
+User -> Client: 发送获取图书类别树请求
+activate Client
+Client -> Controller: 获取图书类别树请求
+activate Controller
+Controller -> CategoryService: 调用获取图书类别列表方法
+activate CategoryService
+CategoryService -> Database: 查询图书类别列表
+activate Database
+Database --> CategoryService: 返回图书类别列表
+deactivate Database
+CategoryService --> Controller: 返回图书类别列表
+deactivate CategoryService
+Controller -> Controller: 构建图书类别树结构
+Controller -> Client: 返回图书类别树
+deactivate Controller
+deactivate Client
+
+@enduml

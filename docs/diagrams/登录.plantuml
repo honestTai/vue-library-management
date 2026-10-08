@@ -1,0 +1,26 @@
+@startuml
+
+actor Client as "用户"
+participant Controller
+participant Service
+participant Mapper
+database Database
+
+Client -> Controller: 发送登录请求
+Controller -> Controller: 接收请求
+Controller -> Service: 调用login方法
+Service -> Mapper: 根据用户名查询用户信息
+Mapper -> Database: 查询用户信息
+Database --> Mapper: 返回用户信息
+Mapper --> Service: 返回用户信息
+Service -> Service: 验证用户信息
+alt 用户名或密码错误
+    Service --> Controller: 抛出用户名或密码错误异常
+    Controller --> Client: 返回异常信息
+else 用户状态正常
+    Service -> Service: 生成Token
+    Service -> Controller: 返回登录结果
+    Controller -> Client: 返回登录结果
+end
+
+@enduml

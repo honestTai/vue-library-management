@@ -1,0 +1,63 @@
+@startuml
+
+actor User
+participant Client
+participant Controller
+participant Service
+participant Mapper
+database Database
+
+User -> Client: 提交保存借书记录请求
+activate Client
+Client -> Controller: 发送保存借书记录请求
+activate Controller
+Controller -> Service: 调用保存借书记录方法
+activate Service
+Service -> Mapper: 查询用户信息
+activate Mapper
+Mapper -> Database: 查询用户信息
+activate Database
+Database --> Mapper: 返回用户信息
+deactivate Database
+Mapper --> Service: 返回用户信息
+deactivate Mapper
+alt 校验用户信息是否存在
+    Service -> Mapper: 查询图书信息
+    activate Mapper
+    Mapper -> Database: 查询图书信息
+    activate Database
+    Database --> Mapper: 返回图书信息
+    deactivate Database
+    Mapper --> Service: 返回图书信息
+    deactivate Mapper
+    alt 图书信息存在
+        Service -> Service: 校验图书数量是否足够
+        alt 图书数量足够
+            Service -> Service: 计算借书所需积分
+            Service -> Service: 校验用户账户余额是否足够借书
+            Service -> Mapper: 更新用户账户余额
+            Mapper -> Database: 更新用户账户余额
+            Database --> Mapper: 返回更新结果
+            Mapper --> Service: 返回更新结果
+            Service -> Mapper: 更新图书数量
+            Mapper -> Database: 更新图书数量
+            Database --> Mapper: 返回更新结果
+            Mapper --> Service: 返回更新结果
+            Service -> Mapper: 新增借书记录
+            Mapper -> Database: 插入借书记录
+            Database --> Mapper: 返回插入结果
+            Mapper --> Service: 返回插入结果
+            Service --> Controller: 返回成功结果
+        else 图书数量不足
+            Service --> Controller: 返回异常结果（图书数量不足）
+        end
+    else 图书信息不存在
+        Service --> Controller: 返回异常结果（所借图书不存在）
+    end
+else 用户信息不存在
+    Service --> Controller: 返回异常结果（用户不存在）
+end
+
+Controller --> Client: 返回结果
+
+@enduml
